@@ -151,8 +151,9 @@ const SeatManager = {
     }
 };
 
-// 그리드 스케일 관리
+// 그리드 스케일 및 너비 관리
 let gridScale = 1;
+let baseWidth = 300; // 기본 너비
 
 function updateGridScale() {
     const containers = [
@@ -160,7 +161,7 @@ function updateGridScale() {
         document.getElementById('config-seats-grid')
     ];
 
-    let baseWidth = 300; // 기본 너비 (모바일)
+    baseWidth = 300; // 기본 너비 (모바일)
     if (window.innerWidth >= 768) {
         baseWidth = 600; // 아이패드/태블릿
     }
@@ -170,9 +171,16 @@ function updateGridScale() {
 
     containers.forEach(container => {
         if (container) {
+            let width = baseWidth;
+
+            // 설정 화면은 모바일에서도 넓게 사용하여 스크롤 가능하게 함
+            if (container.id === 'config-seats-grid' && baseWidth < 600) {
+                width = 600;
+            }
+
             // 스타일 적용 (고정 크기)
-            container.style.width = `${baseWidth}px`;
-            container.style.height = `${baseWidth * 1.33}px`; // 3:4 비율
+            container.style.width = `${width}px`;
+            container.style.height = `${width * 1.33}px`; // 3:4 비율
             container.style.transform = 'none';
             container.style.transformOrigin = 'top left';
         }
@@ -196,6 +204,9 @@ function renderSeatsView() {
 
     noSeatsMsg.style.display = 'none';
 
+    // 화면 비율에 따른 좌표 스케일링 (가로 600이면 2배)
+    const coordScale = baseWidth / 300;
+
     SeatManager.seats.forEach(seat => {
         const order = OrderManager.getOrderBySeat(seat.id);
         const hasOrder = order && order.items.length > 0;
@@ -204,8 +215,13 @@ function renderSeatsView() {
         const seatEl = document.createElement('div');
         seatEl.className = `seat-item ${hasOrder ? 'has-order' : ''}`;
         seatEl.style.position = 'absolute';
-        seatEl.style.left = `${seat.x || 0}px`;
-        seatEl.style.top = `${seat.y || 0}px`;
+
+        // 아이패드 등 큰 화면에서는 좌표를 비율대로 늘림
+        const scaledX = (seat.x || 0) * coordScale;
+        const scaledY = (seat.y || 0) * coordScale;
+
+        seatEl.style.left = `${scaledX}px`;
+        seatEl.style.top = `${scaledY}px`;
         seatEl.innerHTML = `
             <span class="seat-name">${escapeHtml(seat.name)}</span>
             ${hasOrder ? `<span class="seat-amount">${formatPrice(totalAmount)}</span>` : ''}
@@ -238,13 +254,25 @@ function renderSeatConfigView() {
         return;
     }
 
+    // 화면 비율에 따른 좌표 스케일링
+    // 설정 뷰는 모바일에서도 600px로 고정되므로, 모바일(baseWidth < 600)인 경우 2배 확대
+    let coordScale = baseWidth / 300;
+    if (baseWidth < 600) {
+        coordScale = 600 / 300; // 2배
+    }
+
     SeatManager.seats.forEach(seat => {
         const seatEl = document.createElement('div');
         seatEl.className = 'seat-item draggable';
         seatEl.dataset.seatId = seat.id;
         seatEl.style.position = 'absolute';
-        seatEl.style.left = `${seat.x || 0}px`;
-        seatEl.style.top = `${seat.y || 0}px`;
+
+        // 아이패드 등 큰 화면에서는 좌표를 비율대로 늘림
+        const scaledX = (seat.x || 0) * coordScale;
+        const scaledY = (seat.y || 0) * coordScale;
+
+        seatEl.style.left = `${scaledX}px`;
+        seatEl.style.top = `${scaledY}px`;
         seatEl.innerHTML = `
             <span class="seat-name">${escapeHtml(seat.name)}</span>
             <button class="delete-seat" onclick="event.stopPropagation(); handleDeleteSeat('${seat.id}')">&times;</button>
@@ -324,9 +352,19 @@ function handleDragEnd(e) {
     const seatEl = dragState.seatEl;
     const seatId = dragState.seatId;
 
-    // 위치 저장
-    const newX = parseInt(seatEl.style.left) || 0;
-    const newY = parseInt(seatEl.style.top) || 0;
+    // 위치 저장 - 화면 비율 고려하여 원본 좌표(300px 기준)로 변환
+    // 모바일 설정 뷰의 경우 600px 기준이므로 coordScale 재계산 필요
+    let coordScale = baseWidth / 300;
+    if (baseWidth < 600) {
+        coordScale = 600 / 300;
+    }
+
+    const currentX = parseInt(seatEl.style.left) || 0;
+    const currentY = parseInt(seatEl.style.top) || 0;
+
+    const newX = Math.round(currentX / coordScale);
+    const newY = Math.round(currentY / coordScale);
+
     SeatManager.updateSeatPosition(seatId, newX, newY);
 
     seatEl.classList.remove('dragging');
