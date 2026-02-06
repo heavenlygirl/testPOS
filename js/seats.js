@@ -155,19 +155,25 @@ const SeatManager = {
 let gridScale = 1;
 
 function updateGridScale() {
-    const container = document.getElementById('seats-grid') || document.getElementById('config-seats-grid');
-    if (!container) return;
+    const containers = [
+        document.getElementById('seats-grid'),
+        document.getElementById('config-seats-grid')
+    ];
 
-    const baseWidth = 450; // 기준 너비
+    const baseWidth = 380; // 기준 너비 (아이폰 등 모바일 최적화)
 
     // 스크롤 방식으로 변경하여 스케일링 비활성화
     gridScale = 1;
 
-    // 스타일 적용 (고정 크기)
-    container.style.width = `${baseWidth}px`;
-    container.style.height = `${baseWidth * 1.33}px`; // 3:4 비율
-    container.style.transform = 'none';
-    container.style.transformOrigin = 'top left';
+    containers.forEach(container => {
+        if (container) {
+            // 스타일 적용 (고정 크기)
+            container.style.width = `${baseWidth}px`;
+            container.style.height = `${baseWidth * 1.33}px`; // 3:4 비율
+            container.style.transform = 'none';
+            container.style.transformOrigin = 'top left';
+        }
+    });
 }
 
 // 좌석 뷰 렌더링 (메인 화면 - 절대 위치)
