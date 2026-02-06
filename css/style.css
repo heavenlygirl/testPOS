@@ -37,8 +37,14 @@ html, body {
     height: 100%;
     max-width: 100%;
     margin: 0 auto;
-    background: var(--white);
-    padding-top: 30px;
+    background: var(--secondary-color);
+}
+
+/* PWA 모드에서만 상단 여백 적용 (홈 화면에 추가된 앱) */
+@media (display-mode: standalone) {
+    #app {
+        padding-top: 60px;
+    }
 }
 
 /* 헤더 */
