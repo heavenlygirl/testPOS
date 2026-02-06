@@ -375,9 +375,17 @@ function renderBusinessStatus() {
 
 // 영업 시작 핸들러
 async function handleStartBusiness() {
-    await BusinessManager.startBusiness();
-    renderBusinessStatus();
-    renderSeatsView();
+    console.log('영업 시작 핸들러 호출');
+    try {
+        await BusinessManager.startBusiness();
+        console.log('영업 상태:', BusinessManager.status);
+        renderBusinessStatus();
+        renderSeatsView();
+        console.log('영업 시작 완료');
+    } catch (error) {
+        console.error('영업 시작 오류:', error);
+        showToast('오류 발생: ' + error.message);
+    }
 }
 
 // 영업 완료 핸들러

@@ -49,6 +49,9 @@
                 <div id="monthly-total" class="sales-total">
                     <!-- 월 총 매출 -->
                 </div>
+                <button id="export-csv-btn" class="action-btn" style="width: 100%; margin-top: 15px;">
+                    CSV 내보내기
+                </button>
             </section>
 
             <!-- 메뉴 설정 뷰 -->
@@ -71,6 +74,10 @@
                 <div class="seat-config-actions">
                     <button id="add-seat-btn" class="action-btn">+ 좌석 추가</button>
                     <button id="save-seats-btn" class="action-btn primary">설정 저장</button>
+                </div>
+                <div class="data-management" style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #ddd;">
+                    <p style="text-align: center; color: var(--dark-gray); font-size: 0.85rem; margin-bottom: 10px;">데이터 관리</p>
+                    <button id="reset-data-btn" class="action-btn danger" style="width: 100%;" onclick="resetAllData()">모든 데이터 초기화</button>
                 </div>
             </section>
         </main>
@@ -172,7 +179,7 @@
             </div>
             <div class="modal-footer">
                 <button type="button" id="delete-menu-btn" class="btn danger" style="display: none;">삭제</button>
-                <button type="submit" form="menu-form" class="btn primary">저장</button>
+                <button type="button" id="save-menu-btn" class="btn primary">저장</button>
             </div>
         </div>
     </div>

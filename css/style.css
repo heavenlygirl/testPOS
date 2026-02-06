@@ -94,7 +94,7 @@ html, body {
 /* 출입구 라벨 */
 .entrance-label {
     position: absolute;
-    left: 0;
+    right: 0;
     top: 50%;
     transform: translateY(-50%);
     writing-mode: vertical-rl;
@@ -105,8 +105,8 @@ html, body {
     font-size: 0.85rem;
     font-weight: 600;
     letter-spacing: 4px;
-    border-radius: 0 8px 8px 0;
-    z-index: 10;
+    border-radius: 8px 0 0 8px;
+    z-index: 100;
 }
 
 .seat-item {
@@ -362,6 +362,11 @@ html, body {
 
 .action-btn.primary {
     background: var(--primary-color);
+    color: var(--white);
+}
+
+.action-btn.danger {
+    background: var(--danger-color);
     color: var(--white);
 }
 

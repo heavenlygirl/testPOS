@@ -32,20 +32,26 @@ const MenuManager = {
             createdAt: new Date().toISOString()
         };
 
+        console.log('메뉴 추가 시도:', menu.name, '- Firebase 설정:', isFirebaseConfigured());
+
         if (isFirebaseConfigured()) {
             try {
                 const docRef = await db.collection('menus').add(menu);
                 menu.id = docRef.id;
+                console.log('Firebase에 메뉴 저장 성공:', menu.id);
             } catch (error) {
-                console.error('메뉴 추가 실패:', error);
+                console.error('Firebase 메뉴 추가 실패:', error);
+                showToast('Firebase 저장 실패: ' + error.message);
                 menu.id = 'local_' + Date.now();
             }
         } else {
             menu.id = 'local_' + Date.now();
+            console.log('로컬 저장 모드:', menu.id);
         }
 
         this.menus.unshift(menu);
         this.saveToLocal();
+        console.log('메뉴 추가 완료. 총 메뉴 수:', this.menus.length);
         return menu;
     },
 
@@ -194,30 +200,39 @@ function openMenuModal(menu = null) {
 
 // 메뉴 폼 제출
 async function handleMenuSubmit(e) {
-    e.preventDefault();
+    if (e) e.preventDefault();
+    console.log('메뉴 폼 제출 시작');
 
-    const menuId = document.getElementById('menu-id').value;
-    const menuData = {
-        name: document.getElementById('menu-name').value.trim(),
-        price: document.getElementById('menu-price').value,
-        category: document.getElementById('menu-category').value.trim()
-    };
+    try {
+        const menuId = document.getElementById('menu-id').value;
+        const menuData = {
+            name: document.getElementById('menu-name').value.trim(),
+            price: document.getElementById('menu-price').value,
+            category: document.getElementById('menu-category').value.trim()
+        };
 
-    if (!menuData.name || !menuData.price) {
-        showToast('메뉴 이름과 가격을 입력해주세요.');
-        return;
+        console.log('메뉴 데이터:', menuData);
+
+        if (!menuData.name || !menuData.price) {
+            showToast('메뉴 이름과 가격을 입력해주세요.');
+            return;
+        }
+
+        if (menuId) {
+            await MenuManager.updateMenu(menuId, menuData);
+            showToast('메뉴가 수정되었습니다.');
+        } else {
+            await MenuManager.addMenu(menuData);
+            showToast('메뉴가 추가되었습니다.');
+        }
+
+        closeMenuModal();
+        renderMenuList();
+        console.log('메뉴 폼 제출 완료');
+    } catch (error) {
+        console.error('메뉴 폼 제출 오류:', error);
+        showToast('오류 발생: ' + error.message);
     }
-
-    if (menuId) {
-        await MenuManager.updateMenu(menuId, menuData);
-        showToast('메뉴가 수정되었습니다.');
-    } else {
-        await MenuManager.addMenu(menuData);
-        showToast('메뉴가 추가되었습니다.');
-    }
-
-    closeMenuModal();
-    renderMenuList();
 }
 
 // 메뉴 삭제
@@ -240,10 +255,12 @@ function closeMenuModal() {
 
 // 메뉴 이벤트 초기화
 function initMenuEvents() {
+    console.log('메뉴 이벤트 초기화');
     document.getElementById('add-menu-btn').onclick = () => openMenuModal();
     document.getElementById('close-menu-modal').onclick = closeMenuModal;
-    document.getElementById('menu-form').onsubmit = handleMenuSubmit;
+    document.getElementById('save-menu-btn').onclick = handleMenuSubmit;
     document.getElementById('delete-menu-btn').onclick = handleMenuDelete;
+    console.log('메뉴 저장 버튼 onclick 등록 완료');
 
     // 모달 외부 클릭 시 닫기
     document.getElementById('menu-modal').onclick = (e) => {

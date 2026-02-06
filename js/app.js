@@ -116,8 +116,10 @@ async function initApp() {
 
     console.log('POS 시스템 초기화 완료');
 
-    // Firebase 미설정 경고
-    if (!isFirebaseConfigured()) {
+    // Firebase 상태 알림
+    if (isFirebaseConfigured()) {
+        showToast('Firebase 연결됨: 클라우드 저장 모드');
+    } else {
         showToast('Firebase 미설정: 로컬 저장 모드');
     }
 }

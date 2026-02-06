@@ -102,17 +102,22 @@ const SeatManager = {
             createdAt: new Date().toISOString()
         };
 
+        console.log('좌석 저장 시도 - Firebase 설정:', isFirebaseConfigured());
+
         if (isFirebaseConfigured()) {
             try {
                 await db.collection('seatConfigs').doc(this.currentDate).set(configData);
+                console.log('Firebase에 좌석 저장 성공');
             } catch (error) {
-                console.error('좌석 저장 실패:', error);
+                console.error('Firebase 좌석 저장 실패:', error);
+                showToast('Firebase 저장 실패: ' + error.message);
             }
         }
 
         // 로컬에도 저장
         LocalStorage.set(`seats_${this.currentDate}`, this.seats);
         LocalStorage.set('seats_latest', this.seats);
+        console.log('좌석 저장 완료. 총 좌석 수:', this.seats.length);
 
         return true;
     },
@@ -127,7 +132,7 @@ const SeatManager = {
 function renderSeatsView() {
     const container = document.getElementById('seats-grid');
     const noSeatsMsg = document.getElementById('no-seats-msg');
-    container.innerHTML = '';
+    container.innerHTML = '<div class="entrance-label">출입구</div>';
 
     if (SeatManager.seats.length === 0) {
         noSeatsMsg.style.display = 'block';
@@ -167,10 +172,10 @@ let dragState = {
 // 좌석 설정 뷰 렌더링 (드래그 가능)
 function renderSeatConfigView() {
     const container = document.getElementById('config-seats-grid');
-    container.innerHTML = '';
+    container.innerHTML = '<div class="entrance-label">출입구</div>';
 
     if (SeatManager.seats.length === 0) {
-        container.innerHTML = '<p class="empty-msg">좌석을 추가해주세요.</p>';
+        // 출입구 라벨은 유지
         return;
     }
 
@@ -286,7 +291,7 @@ function openSeatModal() {
 }
 
 // 좌석 추가 폼 제출
-function handleSeatSubmit(e) {
+async function handleSeatSubmit(e) {
     e.preventDefault();
 
     const seatName = document.getElementById('seat-name').value.trim();
@@ -296,15 +301,23 @@ function handleSeatSubmit(e) {
     }
 
     SeatManager.addSeat(seatName);
+
+    // 좌석 추가 후 자동 저장
+    await SeatManager.saveSeats();
+
     closeSeatModal();
     renderSeatConfigView();
     showToast('좌석이 추가되었습니다.');
 }
 
 // 좌석 삭제
-function handleDeleteSeat(seatId) {
+async function handleDeleteSeat(seatId) {
     if (confirm('이 좌석을 삭제하시겠습니까?')) {
         SeatManager.removeSeat(seatId);
+
+        // 좌석 삭제 후 자동 저장
+        await SeatManager.saveSeats();
+
         renderSeatConfigView();
         showToast('좌석이 삭제되었습니다.');
     }

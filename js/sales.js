@@ -349,4 +349,69 @@ function initSalesEvents() {
             }
         };
     }
+
+    const exportBtn = document.getElementById('export-csv-btn');
+    if (exportBtn) {
+        exportBtn.onclick = exportSalesToCSV;
+    }
+}
+
+// CSV 내보내기
+async function exportSalesToCSV() {
+    const year = viewMonth.getFullYear();
+    const month = viewMonth.getMonth() + 1;
+
+    // 데이터가 없으면 알림
+    if (Object.keys(SalesManager.salesData).length === 0) {
+        showToast('내보낼 매출 데이터가 없습니다.');
+        return;
+    }
+
+    // CSV 헤더 (BOM 추가로 한글 깨짐 방지)
+    const BOM = '\uFEFF';
+    let csv = BOM + '날짜,총매출,주문수,메뉴명,수량,금액\n';
+
+    // 날짜별로 정렬
+    const sortedDates = Object.keys(SalesManager.salesData).sort();
+
+    sortedDates.forEach(date => {
+        const data = SalesManager.salesData[date];
+        const dateFormatted = date; // YYYY-MM-DD 형식 유지
+
+        if (data.items && data.items.length > 0) {
+            // 메뉴별 행 추가
+            data.items.forEach((item, index) => {
+                if (index === 0) {
+                    // 첫 번째 행에 날짜, 총매출, 주문수 포함
+                    csv += `${dateFormatted},${data.totalSales},${data.totalOrders},${item.name},${item.quantity},${item.total}\n`;
+                } else {
+                    // 나머지 행은 메뉴 정보만
+                    csv += `,,,${item.name},${item.quantity},${item.total}\n`;
+                }
+            });
+        } else {
+            // 메뉴 정보 없이 총 매출만
+            csv += `${dateFormatted},${data.totalSales},${data.totalOrders},,,\n`;
+        }
+    });
+
+    // 월 합계 추가
+    const monthlyTotal = SalesManager.getMonthlyTotal();
+    const monthlyOrders = SalesManager.getMonthlyOrderCount();
+    csv += `\n합계,${monthlyTotal},${monthlyOrders},,,\n`;
+
+    // 파일 다운로드
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const fileName = `매출_${year}년${month}월.csv`;
+
+    link.href = URL.createObjectURL(blob);
+    link.download = fileName;
+    link.style.display = 'none';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(link.href);
+
+    showToast(`${fileName} 다운로드 완료`);
 }
