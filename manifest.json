@@ -2,12 +2,18 @@
   "name": "NABI cafe POS",
   "short_name": "NABI cafe",
   "description": "식당/카페용 간편 POS 시스템",
-  "start_url": "/",
+  "start_url": "/testPOS/",
   "display": "standalone",
   "background_color": "#2c3e50",
   "theme_color": "#2c3e50",
   "orientation": "portrait",
   "icons": [
+    {
+      "src": "icons/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
     {
       "src": "icons/icon-192.svg",
       "sizes": "192x192",

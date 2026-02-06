@@ -127,7 +127,7 @@ async function initApp() {
 // Service Worker 등록
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/service-worker.js')
+        navigator.serviceWorker.register('./service-worker.js')
             .then(registration => {
                 console.log('ServiceWorker 등록 성공:', registration.scope);
             })
