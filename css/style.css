@@ -215,7 +215,6 @@ html, body {
     display: flex;
     justify-content: space-around;
     align-items: flex-start;
-    padding-top: 10px;
     padding-bottom: max(env(safe-area-inset-bottom, 0px), 34px);
     flex-shrink: 0;
     position: relative;
@@ -224,7 +223,7 @@ html, body {
 
 .nav-btn {
     flex: 1;
-    height: 100%;
+    height: var(--nav-height);
     background: none;
     border: none;
     display: flex;
