@@ -3,12 +3,13 @@
 // https://console.firebase.google.com > 프로젝트 설정 > 웹 앱 추가
 
 const firebaseConfig = {
-    apiKey: "YOUR_API_KEY",
-    authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-    projectId: "YOUR_PROJECT_ID",
-    storageBucket: "YOUR_PROJECT_ID.appspot.com",
-    messagingSenderId: "YOUR_SENDER_ID",
-    appId: "YOUR_APP_ID"
+    apiKey: "AIzaSyArDvLW_oRXtKksB6CMmZd2XIylAreIdpM",
+    authDomain: "nabipos.firebaseapp.com",
+    projectId: "nabipos",
+    storageBucket: "nabipos.firebasestorage.app",
+    messagingSenderId: "181590029939",
+    appId: "1:181590029939:web:b41a3eae54295b7aaf5c06",
+    measurementId: "G-MGBE0MDGWJ"
 };
 
 // Firebase 초기화
