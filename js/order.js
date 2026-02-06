@@ -316,6 +316,15 @@ const BusinessManager = {
         });
 
         return Object.values(summary);
+    },
+
+    // 일별 상태 초기화 (날짜 변경 시)
+    async resetDailyStatus() {
+        this.status = 'closed';
+        this.todayPayments = [];
+        this.todayTotal = 0;
+        await this.saveStatus();
+        console.log('BusinessManager 상태 초기화 완료');
     }
 };
 

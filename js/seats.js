@@ -3,11 +3,34 @@
 const SeatManager = {
     seats: [],
     currentDate: '',
+    _debugDate: null, // 디버깅용 가상 날짜
 
     // 오늘 날짜 가져오기
     getTodayDate() {
+        if (this._debugDate) return this._debugDate;
         const now = new Date();
-        return now.toISOString().split('T')[0];
+        const offset = now.getTimezoneOffset() * 60000;
+        const localISOTime = (new Date(now - offset)).toISOString().slice(0, 10);
+        return localISOTime;
+    },
+
+    // 디버그용 날짜 설정 (예: '2024-02-09')
+    setDebugDate(dateStr) {
+        this._debugDate = dateStr;
+        console.log(`[DEBUG] 가상 날짜 설정됨: ${dateStr}. 앱 동작 시 이 날짜를 오늘로 인식합니다.`);
+        // 날짜 변경 체크 트리거
+        if (typeof checkDateChange === 'function') {
+            checkDateChange();
+        }
+    },
+
+    // 디버그 모드 해제
+    clearDebugDate() {
+        this._debugDate = null;
+        console.log('[DEBUG] 가상 날짜 해제. 시스템 날짜를 사용합니다.');
+        if (typeof checkDateChange === 'function') {
+            checkDateChange();
+        }
     },
 
     // 좌석 설정 불러오기
@@ -128,10 +151,33 @@ const SeatManager = {
     }
 };
 
+// 그리드 스케일 관리
+let gridScale = 1;
+
+function updateGridScale() {
+    const container = document.getElementById('seats-grid') || document.getElementById('config-seats-grid');
+    if (!container) return;
+
+    const baseWidth = 450; // 기준 너비
+
+    // 스크롤 방식으로 변경하여 스케일링 비활성화
+    gridScale = 1;
+
+    // 스타일 적용 (고정 크기)
+    container.style.width = `${baseWidth}px`;
+    container.style.height = `${baseWidth * 1.33}px`; // 3:4 비율
+    container.style.transform = 'none';
+    container.style.transformOrigin = 'top left';
+}
+
 // 좌석 뷰 렌더링 (메인 화면 - 절대 위치)
 function renderSeatsView() {
     const container = document.getElementById('seats-grid');
     const noSeatsMsg = document.getElementById('no-seats-msg');
+
+    // 초기화 전 스케일 업데이트
+    updateGridScale();
+
     container.innerHTML = '<div class="entrance-label">출입구</div>';
 
     if (SeatManager.seats.length === 0) {
@@ -172,6 +218,10 @@ let dragState = {
 // 좌석 설정 뷰 렌더링 (드래그 가능)
 function renderSeatConfigView() {
     const container = document.getElementById('config-seats-grid');
+
+    // 초기화 전 스케일 업데이트
+    updateGridScale();
+
     container.innerHTML = '<div class="entrance-label">출입구</div>';
 
     if (SeatManager.seats.length === 0) {
@@ -218,8 +268,9 @@ function handleDragStart(e) {
         isDragging: true,
         seatId: seatId,
         seatEl: seatEl,
-        offsetX: clientX - rect.left,
-        offsetY: clientY - rect.top,
+        // 오프셋도 스케일 고려하여 계산 (Screen Diff / Scale = Internal Diff)
+        offsetX: (clientX - rect.left) / gridScale,
+        offsetY: (clientY - rect.top) / gridScale,
         containerLeft: containerRect.left,
         containerTop: containerRect.top
     };
@@ -240,11 +291,13 @@ function handleDragMove(e) {
     const clientX = e.touches ? e.touches[0].clientX : e.clientX;
     const clientY = e.touches ? e.touches[0].clientY : e.clientY;
 
-    const newX = clientX - dragState.containerLeft - dragState.offsetX;
-    const newY = clientY - dragState.containerTop - dragState.offsetY;
+    // Screen 좌표 차이를 Scale로 나누어 Internal 좌표로 변환
+    const newX = (clientX - dragState.containerLeft) / gridScale - dragState.offsetX;
+    const newY = (clientY - dragState.containerTop) / gridScale - dragState.offsetY;
 
     // 컨테이너 범위 내로 제한
     const container = dragState.seatEl.parentElement;
+    // clientWidth는 내부 픽셀 기준이므로 그대로 사용
     const maxX = container.clientWidth - dragState.seatEl.offsetWidth;
     const maxY = container.clientHeight - dragState.seatEl.offsetHeight;
 

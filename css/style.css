@@ -103,13 +103,25 @@ html, body {
 .seats-grid {
     position: relative;
     width: 100%;
-    max-width: 500px;
+    /* max-width 제거하여 고정 너비 유지 (스크롤 가능하게) */
+    /* max-width: 500px; */
     aspect-ratio: 3 / 4;
     min-height: 300px;
     margin: 0 auto;
     background: var(--light-gray);
     border-radius: var(--radius);
     overflow: hidden;
+}
+
+/* 좌석 스크롤 래퍼 */
+.seats-scroll-wrapper {
+    width: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+    margin: 0 auto;
+    /* 스크롤바 커스터마이징 (선택사항) */
+    padding-bottom: 5px;
 }
 
 /* 출입구 라벨 */

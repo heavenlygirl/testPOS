@@ -137,5 +137,62 @@ if ('serviceWorker' in navigator) {
     });
 }
 
+// 날짜 감지 및 리셋
+async function checkDateChange() {
+    // 디버그를 위해 시스템 시간(new Date) 대신 SeatManager.getTodayDate() 사용
+    // 이렇게 하면 setDebugDate로 설정한 날짜를 '현재 시스템 날짜'로 인식하게 됨
+    const systemDate = SeatManager.getTodayDate();
+    const appDate = SeatManager.currentDate;
+
+    if (systemDate !== appDate) {
+        console.log('날짜 변경 감지:', appDate, '->', systemDate);
+        showToast('날짜가 변경되어 데이터를 갱신합니다.');
+
+        // 날짜 업데이트
+        updateDateDisplay();
+
+        // 데이터 리셋 및 재로드
+        await Promise.all([
+            SeatManager.loadSeats(systemDate),
+            BusinessManager.resetDailyStatus(), // 상태 초기화
+            OrderManager.loadOrders(), // 주문 상태 초기화
+            SalesManager.setCurrentMonth(new Date()) // 매출 월 갱신
+        ]);
+
+        // 뷰 월도 현재로 리셋
+        if (typeof viewMonth !== 'undefined') {
+            viewMonth = new Date();
+        }
+
+        // UI 갱신
+        renderBusinessStatus();
+        renderSeatsView();
+
+        // 매출 뷰가 보고 있다면 갱신
+        if (document.getElementById('sales-view').classList.contains('active')) {
+            renderSalesView();
+        }
+    }
+}
+
 // 앱 시작
-document.addEventListener('DOMContentLoaded', initApp);
+document.addEventListener('DOMContentLoaded', () => {
+    initApp();
+
+    // 리사이즈 이벤트 (좌석 스케일링)
+    window.addEventListener('resize', () => {
+        if (typeof updateGridScale === 'function') {
+            updateGridScale();
+        }
+    });
+
+    // 날짜 변경 체크 (1분마다)
+    setInterval(checkDateChange, 60000);
+
+    // 백그라운드에서 돌아올 때 체크
+    document.addEventListener('visibilitychange', () => {
+        if (!document.hidden) {
+            checkDateChange();
+        }
+    });
+});
