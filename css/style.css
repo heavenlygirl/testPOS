@@ -644,11 +644,7 @@ html, body {
 }
 
 /* iOS safe area */
-@supports (padding-bottom: env(safe-area-inset-bottom)) {
-    .bottom-nav {
-        padding-bottom: env(safe-area-inset-bottom);
-    }
-}
+/* iOS safe area는 .bottom-nav에서 max() 함수로 처리 */
 
 /* 영업 상태 바 */
 .business-status-bar {
