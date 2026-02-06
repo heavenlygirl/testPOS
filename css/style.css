@@ -211,13 +211,13 @@ html, body {
 /* 하단 네비게이션 */
 .bottom-nav {
     min-height: var(--nav-height);
-    height: calc(var(--nav-height) + max(env(safe-area-inset-bottom, 0px), 34px));
+    height: calc(var(--nav-height) + max(env(safe-area-inset-bottom, 0px), 17px));
     background: var(--white);
     border-top: 1px solid var(--light-gray);
     display: flex;
     justify-content: space-around;
-    align-items: flex-start;
-    padding-bottom: max(env(safe-area-inset-bottom, 0px), 34px);
+    align-items: center;
+    padding-bottom: max(env(safe-area-inset-bottom, 0px), 17px);
     flex-shrink: 0;
     position: relative;
     z-index: 100;
@@ -327,7 +327,7 @@ html, body {
 /* FAB 버튼 */
 .fab-btn {
     position: fixed;
-    bottom: calc(var(--nav-height) + 20px + max(env(safe-area-inset-bottom, 0px), 34px));
+    bottom: calc(var(--nav-height) + 20px + max(env(safe-area-inset-bottom, 0px), 17px));
     right: 20px;
     background: var(--primary-color);
     color: var(--white);
