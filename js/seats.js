@@ -160,7 +160,10 @@ function updateGridScale() {
         document.getElementById('config-seats-grid')
     ];
 
-    const baseWidth = 380; // 기준 너비 (아이폰 등 모바일 최적화)
+    let baseWidth = 300; // 기본 너비 (모바일)
+    if (window.innerWidth >= 768) {
+        baseWidth = 600; // 아이패드/태블릿
+    }
 
     // 스크롤 방식으로 변경하여 스케일링 비활성화
     gridScale = 1;
