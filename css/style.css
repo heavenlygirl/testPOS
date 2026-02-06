@@ -223,7 +223,7 @@ html, body {
 
 .nav-btn {
     flex: 1;
-    height: var(--nav-height);
+    height: 100%;
     background: none;
     border: none;
     display: flex;
