@@ -215,7 +215,7 @@ html, body {
     border-top: 1px solid var(--light-gray);
     display: flex;
     justify-content: space-around;
-    align-items: center;
+    align-items: flex-start;
     flex-shrink: 0;
     position: relative;
     z-index: 100;
