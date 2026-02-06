@@ -44,7 +44,6 @@ html, body {
 @media (display-mode: standalone) {
     #app {
         padding-top: 60px;
-        background: var(--secondary-color);
     }
 }
 
@@ -236,6 +235,7 @@ html, body {
     display: flex;
     justify-content: space-around;
     align-items: center;
+    padding-bottom: env(safe-area-inset-bottom);
     flex-shrink: 0;
     position: relative;
     z-index: 100;
