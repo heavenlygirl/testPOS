@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#2c3e50">
+    <title>POS 시스템</title>
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="icons/icon-192.svg">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div id="app">
+        <!-- 헤더 -->
+        <header class="header">
+            <h1 id="header-title">좌석</h1>
+            <span id="today-date"></span>
+        </header>
+
+        <!-- 메인 콘텐츠 영역 -->
+        <main id="main-content">
+            <!-- 좌석 뷰 -->
+            <section id="seats-view" class="view active">
+                <!-- 영업 상태 바 -->
+                <div id="business-status-bar" class="business-status-bar">
+                    <!-- 동적으로 렌더링됨 -->
+                </div>
+                <div id="seats-grid" class="seats-grid">
+                    <!-- 좌석들이 동적으로 추가됨 -->
+                </div>
+                <p id="no-seats-msg" class="empty-msg" style="display: none;">
+                    좌석이 없습니다. 좌석설정에서 추가해주세요.
+                </p>
+            </section>
+
+            <!-- 매출 뷰 -->
+            <section id="sales-view" class="view">
+                <div class="sales-header">
+                    <div id="month-selector" class="month-selector">
+                        <!-- 월 선택기 -->
+                    </div>
+                </div>
+                <div id="sales-list" class="sales-list">
+                    <!-- 날짜별 매출 목록 -->
+                </div>
+                <div id="monthly-total" class="sales-total">
+                    <!-- 월 총 매출 -->
+                </div>
+            </section>
+
+            <!-- 메뉴 설정 뷰 -->
+            <section id="menu-view" class="view">
+                <div id="menu-list" class="menu-list">
+                    <!-- 메뉴들이 동적으로 추가됨 -->
+                </div>
+                <button id="add-menu-btn" class="fab-btn">+ 메뉴 추가</button>
+            </section>
+
+            <!-- 좌석 설정 뷰 -->
+            <section id="seat-config-view" class="view">
+                <p class="config-hint" style="text-align: center; color: var(--dark-gray); margin-bottom: 10px; font-size: 0.85rem;">
+                    좌석을 드래그하여 원하는 위치로 이동하세요
+                </p>
+                <div id="config-seats-grid" class="seats-grid config-mode">
+                    <!-- 설정 모드 좌석들 -->
+                </div>
+                <div class="seat-config-actions">
+                    <button id="add-seat-btn" class="action-btn">+ 좌석 추가</button>
+                    <button id="save-seats-btn" class="action-btn primary">설정 저장</button>
+                </div>
+            </section>
+        </main>
+
+        <!-- 하단 네비게이션 -->
+        <nav class="bottom-nav">
+            <button class="nav-btn active" data-view="seats-view">
+                <span class="nav-icon">🪑</span>
+                <span class="nav-label">좌석</span>
+            </button>
+            <button class="nav-btn" data-view="sales-view">
+                <span class="nav-icon">📊</span>
+                <span class="nav-label">매출</span>
+            </button>
+            <button class="nav-btn" data-view="menu-view">
+                <span class="nav-icon">📋</span>
+                <span class="nav-label">메뉴</span>
+            </button>
+            <button class="nav-btn" data-view="seat-config-view">
+                <span class="nav-icon">⚙️</span>
+                <span class="nav-label">좌석설정</span>
+            </button>
+        </nav>
+    </div>
+
+    <!-- 주문 입력 모달 -->
+    <div id="order-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="order-seat-name">좌석 A1</h2>
+                <button class="close-btn" id="close-order-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div id="order-menu-list" class="order-menu-list">
+                    <!-- 주문 가능한 메뉴 목록 -->
+                </div>
+                <div class="order-summary">
+                    <h3>현재 주문</h3>
+                    <div id="current-order-items" class="current-order-items">
+                        <!-- 현재 주문 내역 -->
+                    </div>
+                    <div class="order-total">
+                        <span>총액</span>
+                        <span id="order-total-price">0원</span>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="pay-btn" class="btn primary large">결제</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 결제 확인 모달 -->
+    <div id="payment-modal" class="modal">
+        <div class="modal-content small">
+            <div class="modal-header">
+                <h2>결제 확인</h2>
+            </div>
+            <div class="modal-body">
+                <div id="payment-summary">
+                    <!-- 결제 요약 -->
+                </div>
+                <div class="payment-total">
+                    <span>총 결제 금액</span>
+                    <span id="payment-total-price">0원</span>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="cancel-payment-btn" class="btn">취소</button>
+                <button id="confirm-payment-btn" class="btn primary">결제 완료</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 메뉴 추가/수정 모달 -->
+    <div id="menu-modal" class="modal">
+        <div class="modal-content small">
+            <div class="modal-header">
+                <h2 id="menu-modal-title">메뉴 추가</h2>
+                <button class="close-btn" id="close-menu-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="menu-form">
+                    <input type="hidden" id="menu-id">
+                    <div class="form-group">
+                        <label for="menu-name">메뉴 이름</label>
+                        <input type="text" id="menu-name" required placeholder="예: 아메리카노">
+                    </div>
+                    <div class="form-group">
+                        <label for="menu-price">가격 (원)</label>
+                        <input type="number" id="menu-price" required placeholder="예: 4500" min="0">
+                    </div>
+                    <div class="form-group">
+                        <label for="menu-category">카테고리</label>
+                        <input type="text" id="menu-category" placeholder="예: 음료">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="delete-menu-btn" class="btn danger" style="display: none;">삭제</button>
+                <button type="submit" form="menu-form" class="btn primary">저장</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 좌석 추가 모달 -->
+    <div id="seat-modal" class="modal">
+        <div class="modal-content small">
+            <div class="modal-header">
+                <h2>좌석 추가</h2>
+                <button class="close-btn" id="close-seat-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="seat-form">
+                    <div class="form-group">
+                        <label for="seat-name">좌석 이름</label>
+                        <input type="text" id="seat-name" required placeholder="예: A1, 테이블1">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="submit" form="seat-form" class="btn primary">추가</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 매출 상세 모달 -->
+    <div id="sales-detail-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>매출 상세</h2>
+                <button class="close-btn" id="close-sales-detail-modal">&times;</button>
+            </div>
+            <div class="modal-body" id="sales-detail-content">
+                <!-- 매출 상세 내용 -->
+            </div>
+            <div class="modal-footer">
+                <button class="btn primary large" onclick="closeSalesDetailModal()">닫기</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 토스트 메시지 -->
+    <div id="toast" class="toast"></div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+
+    <!-- 앱 스크립트 -->
+    <script src="js/firebase-config.js"></script>
+    <script src="js/menu.js"></script>
+    <script src="js/seats.js"></script>
+    <script src="js/sales.js"></script>
+    <script src="js/order.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>

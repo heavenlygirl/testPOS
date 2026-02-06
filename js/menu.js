@@ -1,0 +1,222 @@
+// 메뉴 관리 모듈
+
+const MenuManager = {
+    menus: [],
+
+    // 메뉴 목록 불러오기
+    async loadMenus() {
+        if (isFirebaseConfigured()) {
+            try {
+                const snapshot = await db.collection('menus').orderBy('createdAt', 'desc').get();
+                this.menus = snapshot.docs.map(doc => ({
+                    id: doc.id,
+                    ...doc.data()
+                }));
+            } catch (error) {
+                console.error('메뉴 로드 실패:', error);
+                this.menus = LocalStorage.get('menus') || [];
+            }
+        } else {
+            this.menus = LocalStorage.get('menus') || [];
+        }
+        return this.menus;
+    },
+
+    // 메뉴 추가
+    async addMenu(menuData) {
+        const menu = {
+            name: menuData.name,
+            price: parseInt(menuData.price),
+            category: menuData.category || '',
+            available: true,
+            createdAt: new Date().toISOString()
+        };
+
+        if (isFirebaseConfigured()) {
+            try {
+                const docRef = await db.collection('menus').add(menu);
+                menu.id = docRef.id;
+            } catch (error) {
+                console.error('메뉴 추가 실패:', error);
+                menu.id = 'local_' + Date.now();
+            }
+        } else {
+            menu.id = 'local_' + Date.now();
+        }
+
+        this.menus.unshift(menu);
+        this.saveToLocal();
+        return menu;
+    },
+
+    // 메뉴 수정
+    async updateMenu(menuId, updates) {
+        const index = this.menus.findIndex(m => m.id === menuId);
+        if (index === -1) return null;
+
+        const updatedMenu = { ...this.menus[index], ...updates };
+
+        if (isFirebaseConfigured() && !menuId.startsWith('local_')) {
+            try {
+                await db.collection('menus').doc(menuId).update(updates);
+            } catch (error) {
+                console.error('메뉴 수정 실패:', error);
+            }
+        }
+
+        this.menus[index] = updatedMenu;
+        this.saveToLocal();
+        return updatedMenu;
+    },
+
+    // 메뉴 삭제
+    async deleteMenu(menuId) {
+        const index = this.menus.findIndex(m => m.id === menuId);
+        if (index === -1) return false;
+
+        if (isFirebaseConfigured() && !menuId.startsWith('local_')) {
+            try {
+                await db.collection('menus').doc(menuId).delete();
+            } catch (error) {
+                console.error('메뉴 삭제 실패:', error);
+            }
+        }
+
+        this.menus.splice(index, 1);
+        this.saveToLocal();
+        return true;
+    },
+
+    // 메뉴 활성/비활성 토글
+    async toggleAvailable(menuId) {
+        const menu = this.menus.find(m => m.id === menuId);
+        if (!menu) return null;
+
+        return this.updateMenu(menuId, { available: !menu.available });
+    },
+
+    // 활성화된 메뉴만 가져오기
+    getAvailableMenus() {
+        return this.menus.filter(m => m.available);
+    },
+
+    // 로컬 스토리지에 저장
+    saveToLocal() {
+        LocalStorage.set('menus', this.menus);
+    },
+
+    // 메뉴 ID로 찾기
+    getMenuById(menuId) {
+        return this.menus.find(m => m.id === menuId);
+    }
+};
+
+// 메뉴 UI 렌더링
+function renderMenuList() {
+    const container = document.getElementById('menu-list');
+    container.innerHTML = '';
+
+    if (MenuManager.menus.length === 0) {
+        container.innerHTML = '<p class="empty-msg">등록된 메뉴가 없습니다.</p>';
+        return;
+    }
+
+    MenuManager.menus.forEach(menu => {
+        const item = document.createElement('div');
+        item.className = `menu-item ${menu.available ? '' : 'disabled'}`;
+        item.innerHTML = `
+            <div class="menu-item-info">
+                <h3>${escapeHtml(menu.name)}</h3>
+                <span class="category">${escapeHtml(menu.category || '미분류')}</span>
+            </div>
+            <div class="menu-item-price">${formatPrice(menu.price)}</div>
+        `;
+        item.onclick = () => openMenuModal(menu);
+        container.appendChild(item);
+    });
+}
+
+// 메뉴 모달 열기
+function openMenuModal(menu = null) {
+    const modal = document.getElementById('menu-modal');
+    const title = document.getElementById('menu-modal-title');
+    const form = document.getElementById('menu-form');
+    const deleteBtn = document.getElementById('delete-menu-btn');
+
+    if (menu) {
+        title.textContent = '메뉴 수정';
+        document.getElementById('menu-id').value = menu.id;
+        document.getElementById('menu-name').value = menu.name;
+        document.getElementById('menu-price').value = menu.price;
+        document.getElementById('menu-category').value = menu.category || '';
+        deleteBtn.style.display = 'block';
+    } else {
+        title.textContent = '메뉴 추가';
+        form.reset();
+        document.getElementById('menu-id').value = '';
+        deleteBtn.style.display = 'none';
+    }
+
+    modal.classList.add('active');
+}
+
+// 메뉴 폼 제출
+async function handleMenuSubmit(e) {
+    e.preventDefault();
+
+    const menuId = document.getElementById('menu-id').value;
+    const menuData = {
+        name: document.getElementById('menu-name').value.trim(),
+        price: document.getElementById('menu-price').value,
+        category: document.getElementById('menu-category').value.trim()
+    };
+
+    if (!menuData.name || !menuData.price) {
+        showToast('메뉴 이름과 가격을 입력해주세요.');
+        return;
+    }
+
+    if (menuId) {
+        await MenuManager.updateMenu(menuId, menuData);
+        showToast('메뉴가 수정되었습니다.');
+    } else {
+        await MenuManager.addMenu(menuData);
+        showToast('메뉴가 추가되었습니다.');
+    }
+
+    closeMenuModal();
+    renderMenuList();
+}
+
+// 메뉴 삭제
+async function handleMenuDelete() {
+    const menuId = document.getElementById('menu-id').value;
+    if (!menuId) return;
+
+    if (confirm('이 메뉴를 삭제하시겠습니까?')) {
+        await MenuManager.deleteMenu(menuId);
+        showToast('메뉴가 삭제되었습니다.');
+        closeMenuModal();
+        renderMenuList();
+    }
+}
+
+// 메뉴 모달 닫기
+function closeMenuModal() {
+    document.getElementById('menu-modal').classList.remove('active');
+}
+
+// 메뉴 이벤트 초기화
+function initMenuEvents() {
+    document.getElementById('add-menu-btn').onclick = () => openMenuModal();
+    document.getElementById('close-menu-modal').onclick = closeMenuModal;
+    document.getElementById('menu-form').onsubmit = handleMenuSubmit;
+    document.getElementById('delete-menu-btn').onclick = handleMenuDelete;
+
+    // 모달 외부 클릭 시 닫기
+    document.getElementById('menu-modal').onclick = (e) => {
+        if (e.target.classList.contains('modal')) {
+            closeMenuModal();
+        }
+    };
+}
