@@ -1,6 +1,6 @@
 {
-  "name": "POS 시스템",
-  "short_name": "POS",
+  "name": "NABI cafe POS",
+  "short_name": "NABI cafe",
   "description": "식당/카페용 간편 POS 시스템",
   "start_url": "/",
   "display": "standalone",
