@@ -215,11 +215,10 @@ html, body {
     border-top: 1px solid var(--light-gray);
     display: flex;
     justify-content: space-around;
-    align-items: flex-start;
+    align-items: center;
     flex-shrink: 0;
     position: relative;
     z-index: 100;
-    padding-bottom: env(safe-area-inset-bottom, 0px);
 }
 
 .nav-btn {
