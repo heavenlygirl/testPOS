@@ -229,13 +229,12 @@ html, body {
 
 /* 하단 네비게이션 */
 .bottom-nav {
-    min-height: var(--nav-height);
+    height: var(--nav-height);
     background: var(--white);
     border-top: 1px solid var(--light-gray);
     display: flex;
     justify-content: space-around;
     align-items: center;
-    /*padding-bottom: env(safe-area-inset-bottom);*/
     flex-shrink: 0;
     position: relative;
     z-index: 100;
