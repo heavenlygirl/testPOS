@@ -108,6 +108,20 @@ const MenuManager = {
     // 메뉴 ID로 찾기
     getMenuById(menuId) {
         return this.menus.find(m => m.id === menuId);
+    },
+
+    // 메뉴 순서 변경
+    moveMenu(menuId, direction) {
+        const index = this.menus.findIndex(m => m.id === menuId);
+        if (index === -1) return false;
+
+        const newIndex = direction === 'up' ? index - 1 : index + 1;
+        if (newIndex < 0 || newIndex >= this.menus.length) return false;
+
+        // 스왑
+        [this.menus[index], this.menus[newIndex]] = [this.menus[newIndex], this.menus[index]];
+        this.saveToLocal();
+        return true;
     }
 };
 
@@ -121,17 +135,35 @@ function renderMenuList() {
         return;
     }
 
-    MenuManager.menus.forEach(menu => {
+    MenuManager.menus.forEach((menu, index) => {
         const item = document.createElement('div');
         item.className = `menu-item ${menu.available ? '' : 'disabled'}`;
         item.innerHTML = `
-            <div class="menu-item-info">
+            <div class="menu-order-btns">
+                <button class="order-btn" data-dir="up" ${index === 0 ? 'disabled' : ''}>▲</button>
+                <button class="order-btn" data-dir="down" ${index === MenuManager.menus.length - 1 ? 'disabled' : ''}>▼</button>
+            </div>
+            <div class="menu-item-info" style="flex: 1;">
                 <h3>${escapeHtml(menu.name)}</h3>
                 <span class="category">${escapeHtml(menu.category || '미분류')}</span>
             </div>
             <div class="menu-item-price">${formatPrice(menu.price)}</div>
         `;
-        item.onclick = () => openMenuModal(menu);
+
+        // 순서 변경 버튼 이벤트
+        item.querySelectorAll('.order-btn').forEach(btn => {
+            btn.onclick = (e) => {
+                e.stopPropagation();
+                const dir = btn.dataset.dir;
+                MenuManager.moveMenu(menu.id, dir);
+                renderMenuList();
+            };
+        });
+
+        // 메뉴 정보 클릭 시 수정 모달
+        item.querySelector('.menu-item-info').onclick = () => openMenuModal(menu);
+        item.querySelector('.menu-item-price').onclick = () => openMenuModal(menu);
+
         container.appendChild(item);
     });
 }

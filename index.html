@@ -28,6 +28,7 @@
                     <!-- 동적으로 렌더링됨 -->
                 </div>
                 <div id="seats-grid" class="seats-grid">
+                    <div class="entrance-label">출입구</div>
                     <!-- 좌석들이 동적으로 추가됨 -->
                 </div>
                 <p id="no-seats-msg" class="empty-msg" style="display: none;">
@@ -64,6 +65,7 @@
                     좌석을 드래그하여 원하는 위치로 이동하세요
                 </p>
                 <div id="config-seats-grid" class="seats-grid config-mode">
+                    <div class="entrance-label">출입구</div>
                     <!-- 설정 모드 좌석들 -->
                 </div>
                 <div class="seat-config-actions">
@@ -207,6 +209,7 @@
                 <!-- 매출 상세 내용 -->
             </div>
             <div class="modal-footer">
+                <button id="delete-sales-btn" class="btn danger">삭제</button>
                 <button class="btn primary large" onclick="closeSalesDetailModal()">닫기</button>
             </div>
         </div>

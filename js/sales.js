@@ -138,11 +138,28 @@ const SalesManager = {
         return Object.values(this.salesData).reduce((sum, data) => {
             return sum + (data.totalOrders || 0);
         }, 0);
+    },
+
+    // 일별 매출 삭제
+    async deleteDailySales(date) {
+        if (isFirebaseConfigured()) {
+            try {
+                await db.collection('dailySales').doc(date).delete();
+            } catch (error) {
+                console.error('매출 삭제 실패:', error);
+            }
+        }
+
+        LocalStorage.remove(`dailySales_${date}`);
+        delete this.salesData[date];
     }
 };
 
 // 현재 보고 있는 월
 let viewMonth = new Date();
+
+// 현재 보고 있는 매출 상세 날짜
+let currentSalesDetailDate = null;
 
 // 매출 뷰 렌더링
 async function renderSalesView() {
@@ -242,6 +259,7 @@ async function openSalesDetail(date) {
         return;
     }
 
+    currentSalesDetailDate = date;
     const dateObj = new Date(date);
     const displayDate = `${dateObj.getFullYear()}년 ${dateObj.getMonth() + 1}월 ${dateObj.getDate()}일`;
 
@@ -299,11 +317,28 @@ function closeSalesDetailModal() {
     document.getElementById('sales-detail-modal').classList.remove('active');
 }
 
+// 매출 삭제 처리
+async function handleDeleteSales() {
+    if (!currentSalesDetailDate) return;
+
+    if (confirm('이 날짜의 매출 데이터를 삭제하시겠습니까?\n삭제 후 복구할 수 없습니다.')) {
+        await SalesManager.deleteDailySales(currentSalesDetailDate);
+        showToast('매출 데이터가 삭제되었습니다.');
+        closeSalesDetailModal();
+        renderSalesView();
+    }
+}
+
 // 매출 이벤트 초기화
 function initSalesEvents() {
     const closeBtn = document.getElementById('close-sales-detail-modal');
     if (closeBtn) {
         closeBtn.onclick = closeSalesDetailModal;
+    }
+
+    const deleteBtn = document.getElementById('delete-sales-btn');
+    if (deleteBtn) {
+        deleteBtn.onclick = handleDeleteSales;
     }
 
     const modal = document.getElementById('sales-detail-modal');

@@ -91,6 +91,24 @@ html, body {
     overflow: hidden;
 }
 
+/* 출입구 라벨 */
+.entrance-label {
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    writing-mode: vertical-rl;
+    text-orientation: upright;
+    background: var(--secondary-color);
+    color: var(--white);
+    padding: 15px 6px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    letter-spacing: 4px;
+    border-radius: 0 8px 8px 0;
+    z-index: 10;
+}
+
 .seat-item {
     width: 70px;
     height: 70px;
@@ -249,9 +267,38 @@ html, body {
     padding: 15px;
     box-shadow: var(--shadow);
     display: flex;
-    justify-content: space-between;
     align-items: center;
+    gap: 10px;
+}
+
+/* 메뉴 순서 변경 버튼 */
+.menu-order-btns {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.order-btn {
+    width: 28px;
+    height: 24px;
+    border: 1px solid var(--medium-gray);
+    border-radius: 4px;
+    background: var(--light-gray);
+    font-size: 0.7rem;
     cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.order-btn:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+}
+
+.order-btn:not(:disabled):active {
+    background: var(--primary-color);
+    color: var(--white);
 }
 
 .menu-item-info h3 {
