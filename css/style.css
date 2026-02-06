@@ -229,7 +229,7 @@ html, body {
 
 /* 하단 네비게이션 */
 .bottom-nav {
-    min-height: var(--nav-height);
+    height: var(--nav-height);
     background: var(--white);
     border-top: 1px solid var(--light-gray);
     display: flex;
@@ -239,6 +239,12 @@ html, body {
     flex-shrink: 0;
     position: relative;
     z-index: 100;
+}
+/* iOS safe area */
+@supports (padding-bottom: env(safe-area-inset-bottom)) {
+    .bottom-nav {
+        padding-bottom: env(safe-area-inset-bottom);
+    }
 }
 
 .nav-btn {
