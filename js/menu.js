@@ -7,11 +7,18 @@ const MenuManager = {
     async loadMenus() {
         if (isFirebaseConfigured()) {
             try {
-                const snapshot = await db.collection('menus').orderBy('createdAt', 'desc').get();
+                // order 필드가 있으면 order로 정렬, 없으면 createdAt으로 정렬
+                const snapshot = await db.collection('menus').get();
                 this.menus = snapshot.docs.map(doc => ({
                     id: doc.id,
                     ...doc.data()
                 }));
+                // order 필드로 정렬 (order가 없으면 맨 뒤로)
+                this.menus.sort((a, b) => {
+                    const orderA = a.order !== undefined ? a.order : 9999;
+                    const orderB = b.order !== undefined ? b.order : 9999;
+                    return orderA - orderB;
+                });
             } catch (error) {
                 console.error('메뉴 로드 실패:', error);
                 this.menus = LocalStorage.get('menus') || [];
@@ -117,7 +124,7 @@ const MenuManager = {
     },
 
     // 메뉴 순서 변경
-    moveMenu(menuId, direction) {
+    async moveMenu(menuId, direction) {
         const index = this.menus.findIndex(m => m.id === menuId);
         if (index === -1) return false;
 
@@ -126,8 +133,32 @@ const MenuManager = {
 
         // 스왑
         [this.menus[index], this.menus[newIndex]] = [this.menus[newIndex], this.menus[index]];
-        this.saveToLocal();
+
+        // 순서 저장 (Firebase에 순서 정보 업데이트)
+        await this.saveMenuOrder();
         return true;
+    },
+
+    // 메뉴 순서 저장
+    async saveMenuOrder() {
+        this.saveToLocal();
+
+        if (isFirebaseConfigured()) {
+            try {
+                // 각 메뉴에 순서(order) 필드 업데이트
+                const batch = db.batch();
+                this.menus.forEach((menu, index) => {
+                    if (!menu.id.startsWith('local_')) {
+                        const menuRef = db.collection('menus').doc(menu.id);
+                        batch.update(menuRef, { order: index });
+                    }
+                });
+                await batch.commit();
+                console.log('메뉴 순서 Firebase 저장 완료');
+            } catch (error) {
+                console.error('메뉴 순서 저장 실패:', error);
+            }
+        }
     }
 };
 
@@ -158,10 +189,10 @@ function renderMenuList() {
 
         // 순서 변경 버튼 이벤트
         item.querySelectorAll('.order-btn').forEach(btn => {
-            btn.onclick = (e) => {
+            btn.onclick = async (e) => {
                 e.stopPropagation();
                 const dir = btn.dataset.dir;
-                MenuManager.moveMenu(menu.id, dir);
+                await MenuManager.moveMenu(menu.id, dir);
                 renderMenuList();
             };
         });

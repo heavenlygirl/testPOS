@@ -322,7 +322,23 @@ async function handleDeleteSales() {
     if (!currentSalesDetailDate) return;
 
     if (confirm('이 날짜의 매출 데이터를 삭제하시겠습니까?\n삭제 후 복구할 수 없습니다.')) {
+        const today = SeatManager.getTodayDate();
+        const isToday = currentSalesDetailDate === today;
+
         await SalesManager.deleteDailySales(currentSalesDetailDate);
+
+        // 오늘 매출 삭제 시 BusinessManager도 초기화
+        if (isToday) {
+            BusinessManager.todayTotal = 0;
+            BusinessManager.todayPayments = [];
+            BusinessManager.status = 'closed';
+            await BusinessManager.saveStatus();
+
+            if (typeof renderBusinessStatus === 'function') {
+                renderBusinessStatus();
+            }
+        }
+
         showToast('매출 데이터가 삭제되었습니다.');
         closeSalesDetailModal();
         renderSalesView();
