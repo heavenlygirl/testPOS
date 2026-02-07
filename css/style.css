@@ -36,10 +36,10 @@ html,
 body {
     height: 100%;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    background-color: var(--white);
+    background-color: var(--dark-gray);
     color: var(--secondary-color);
     overflow: hidden;
-    -webkit-tap-highlight-color: transparent;
+    -webkit-tap-highlight-color: black;
 }
 
 #app {
