@@ -245,9 +245,10 @@ const BusinessManager = {
 
     // 영업 완료 (정산)
     async endBusiness() {
-        // 미결제 주문 확인
-        if (OrderManager.hasActiveOrders()) {
-            const confirmed = confirm('미결제 주문이 있습니다. 영업을 종료하시겠습니까?');
+        // 미결제 주문 확인 (총액이 0보다 클 때만 확인)
+        const activeTotal = OrderManager.getActiveOrdersTotal();
+        if (OrderManager.hasActiveOrders() && activeTotal > 0) {
+            const confirmed = confirm(`미결제 주문이 ${formatPrice(activeTotal)} 있습니다. 영업을 종료하시겠습니까?`);
             if (!confirmed) return false;
         }
 
@@ -524,8 +525,28 @@ async function handleQuantityChange(menuId, delta) {
 function handlePayClick() {
     const order = OrderManager.getOrderBySeat(currentSeat.id);
 
-    if (!order || order.items.length === 0) {
+    if (!order) {
         showToast('주문 내역이 없습니다.');
+        return;
+    }
+
+    // 주문 내역이 0개이거나 0원인 경우 주문 삭제 처리
+    if (order.items.length === 0 || order.totalPrice === 0) {
+        if (confirm('주문 내역이 없습니다. 해당 좌석의 주문 정보를 초기화하시겠습니까?')) {
+            // 주문 객체 삭제
+            delete OrderManager.orders[currentSeat.id];
+            OrderManager.saveToLocal();
+
+            // Firebase 삭제
+            if (isFirebaseConfigured()) {
+                const docId = `${order.date}_${currentSeat.id}`;
+                db.collection('orders').doc(docId).delete().catch(e => console.error(e));
+            }
+
+            closeOrderModal();
+            renderSeatsView();
+            showToast('주문 정보가 초기화되었습니다.');
+        }
         return;
     }
 
@@ -565,10 +586,36 @@ function closePaymentModal() {
     document.getElementById('payment-modal').classList.remove('active');
 }
 
+// 주문 취소
+async function handleCancelOrder() {
+    const order = OrderManager.getOrderBySeat(currentSeat.id);
+    if (!order) {
+        showToast('취소할 주문 내역이 없습니다.');
+        return;
+    }
+
+    if (confirm('현재 좌석의 모든 주문 내역을 삭제하시겠습니까?')) {
+        // 주문 객체 삭제
+        delete OrderManager.orders[currentSeat.id];
+        OrderManager.saveToLocal();
+
+        // Firebase 삭제
+        if (isFirebaseConfigured()) {
+            const docId = `${order.date}_${currentSeat.id}`;
+            db.collection('orders').doc(docId).delete().catch(e => console.error(e));
+        }
+
+        closeOrderModal();
+        renderSeatsView();
+        showToast('주문이 취소되었습니다.');
+    }
+}
+
 // 주문 이벤트 초기화
 function initOrderEvents() {
     document.getElementById('close-order-modal').onclick = closeOrderModal;
     document.getElementById('pay-btn').onclick = handlePayClick;
+    document.getElementById('cancel-order-btn').onclick = handleCancelOrder;
     document.getElementById('cancel-payment-btn').onclick = closePaymentModal;
     document.getElementById('confirm-payment-btn').onclick = handleConfirmPayment;
 
