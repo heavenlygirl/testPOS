@@ -2,7 +2,7 @@
   "name": "NABI cafe POS",
   "short_name": "NABI cafe",
   "description": "식당/카페용 간편 POS 시스템",
-  "start_url": "/testPOS/",
+  "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#2c3e50",
   "theme_color": "#2c3e50",

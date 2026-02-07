@@ -6,28 +6,28 @@
 }
 
 :root {
-    --primary-color: #c58940;
-    /* 진한 베이지 (카멜) */
-    --primary-dark: #8d5c22;
-    /* 더 진한 베이지/브라운 */
-    --secondary-color: #4e342e;
-    /* 다크 초콜릿 (텍스트 강조) */
-    --success-color: #43a047;
-    /* 진한 초록 */
-    --danger-color: #e53935;
-    /* 진한 빨강 */
-    --warning-color: #fb8c00;
-    /* 진한 귤색 */
-    --light-gray: #fff8e1;
-    /* 크림색 배경 */
-    --medium-gray: #ffe0b2;
-    /* 연한 살구색 */
-    --dark-gray: #6d4c41;
-    /* 진한 브라운 (보조 텍스트) */
+    --primary-color: #4A6338;
+    /* Olive Green */
+    --primary-dark: #324424;
+    /* Darker Olive */
+    --secondary-color: #1A201A;
+    /* Dark Black/Green */
+    --success-color: #8FA270;
+    /* Light Olive */
+    --danger-color: #c04e4e;
+    /* Muted Red */
+    --warning-color: #d69e2e;
+    /* Muted Gold */
+    --light-gray: #E6DECA;
+    /* Beige/Sand */
+    --medium-gray: #Cdc3a9;
+    /* Darker Beige */
+    --dark-gray: #3A403A;
+    /* Dark Grayish Green */
     --white: #ffffff;
-    --shadow: 0 4px 15px rgba(141, 110, 99, 0.2);
+    --shadow: 0 4px 15px rgba(26, 32, 26, 0.15);
+    /* Adjusted shadow color */
     --radius: 20px;
-    /* 더 둥글게 */
     --nav-height: 56px;
     --header-height: 60px;
 }
@@ -51,12 +51,7 @@ body {
     background: var(--white);
 }
 
-/* PWA 모드에서만 상단 여백 적용 (홈 화면에 추가된 앱) */
-@media (display-mode: standalone) {
-    #app {
-        padding-top: 60px;
-    }
-}
+
 
 /* 헤더 */
 .header {
@@ -68,6 +63,25 @@ body {
     justify-content: space-between;
     padding: 0 20px;
     flex-shrink: 0;
+}
+
+/* PWA 모드일 때 헤더 스타일 (노치 대응 및 여백 분리) */
+@media (display-mode: standalone) {
+    .header {
+        /* 높이 자동 조절 (기존 고정 높이 해제) */
+        height: auto;
+        min-height: var(--header-height);
+
+        /* 위쪽: 상태바 안전 영역 + 추가 여백 (15px) */
+        padding-top: calc(env(safe-area-inset-top) + 15px);
+
+        /* 아래쪽: 헤더 내용 하단 여백 (15px) */
+        padding-bottom: 15px;
+
+        /* 좌우 패딩은 유지하거나 조절 */
+        padding-left: 20px;
+        padding-right: 20px;
+    }
 }
 
 .header h1 {
@@ -270,7 +284,7 @@ body {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 2px;
+    gap: 4px;
     color: var(--dark-gray);
     cursor: pointer;
     transition: color 0.2s;
@@ -286,7 +300,7 @@ body {
 
 .nav-icon {
     font-size: 1.4rem;
-    margin-top: 10px;
+    margin-top: 0;
 }
 
 .nav-label {
