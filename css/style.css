@@ -6,18 +6,28 @@
 }
 
 :root {
-    --primary-color: #3498db;
-    --primary-dark: #2980b9;
-    --secondary-color: #2c3e50;
-    --success-color: #27ae60;
-    --danger-color: #e74c3c;
-    --warning-color: #f39c12;
-    --light-gray: #ecf0f1;
-    --medium-gray: #bdc3c7;
-    --dark-gray: #7f8c8d;
+    --primary-color: #c58940;
+    /* 진한 베이지 (카멜) */
+    --primary-dark: #8d5c22;
+    /* 더 진한 베이지/브라운 */
+    --secondary-color: #4e342e;
+    /* 다크 초콜릿 (텍스트 강조) */
+    --success-color: #43a047;
+    /* 진한 초록 */
+    --danger-color: #e53935;
+    /* 진한 빨강 */
+    --warning-color: #fb8c00;
+    /* 진한 귤색 */
+    --light-gray: #fff8e1;
+    /* 크림색 배경 */
+    --medium-gray: #ffe0b2;
+    /* 연한 살구색 */
+    --dark-gray: #6d4c41;
+    /* 진한 브라운 (보조 텍스트) */
     --white: #ffffff;
-    --shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-    --radius: 12px;
+    --shadow: 0 4px 15px rgba(141, 110, 99, 0.2);
+    --radius: 20px;
+    /* 더 둥글게 */
     --nav-height: 56px;
     --header-height: 60px;
 }

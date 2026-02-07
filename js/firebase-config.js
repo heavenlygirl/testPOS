@@ -77,10 +77,10 @@ async function resetAllData() {
     for (let i = 0; i < localStorage.length; i++) {
         const key = localStorage.key(i);
         if (key && (key.startsWith('menus') ||
-                    key.startsWith('seats') ||
-                    key.startsWith('orders') ||
-                    key.startsWith('business') ||
-                    key.startsWith('dailySales'))) {
+            key.startsWith('seats') ||
+            key.startsWith('orders') ||
+            key.startsWith('business') ||
+            key.startsWith('dailySales'))) {
             keysToRemove.push(key);
         }
     }
@@ -137,4 +137,98 @@ async function resetAllData() {
     alert('모든 데이터가 초기화되었습니다.\n페이지를 새로고침합니다.');
     location.reload();
     return true;
+}
+// 좌석 정보 삭제
+async function resetSeatsData() {
+    if (!confirm('좌석 정보를 삭제하시겠습니까?\n모든 좌석 배치가 초기화됩니다.')) return;
+
+    // 로컬 삭제
+    for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key && key.startsWith('seats')) {
+            localStorage.removeItem(key);
+        }
+    }
+
+    // Firebase 삭제
+    if (isFirebaseConfigured()) {
+        try {
+            const snapshot = await db.collection('seatConfigs').get();
+            const deletes = snapshot.docs.map(doc => doc.ref.delete());
+            await Promise.all(deletes);
+        } catch (error) {
+            console.error('좌석 삭제 실패:', error);
+            alert('좌석 데이터 삭제 중 오류가 발생했습니다.');
+            return;
+        }
+    }
+
+    alert('좌석 정보가 삭제되었습니다.\n페이지를 새로고침합니다.');
+    location.reload();
+}
+
+// 전체 매출 정보 삭제
+async function resetSalesData() {
+    if (!confirm('전체 매출 정보를 삭제하시겠습니까?\n지금까지의 모든 판매 기록이 영구적으로 삭제됩니다.')) return;
+
+    // 로컬 삭제
+    const keysToRemove = [];
+    for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key && (key.startsWith('dailySales') || key.startsWith('business'))) {
+            keysToRemove.push(key);
+        }
+    }
+    keysToRemove.forEach(key => localStorage.removeItem(key));
+
+    // Firebase 삭제
+    if (isFirebaseConfigured()) {
+        try {
+            // 매출, 영업상태, 결제내역 삭제
+            const collections = ['dailySales', 'businessStatus', 'paymentHistory'];
+            for (const col of collections) {
+                const snapshot = await db.collection(col).get();
+                const deletes = snapshot.docs.map(doc => doc.ref.delete());
+                await Promise.all(deletes);
+            }
+        } catch (error) {
+            console.error('매출 삭제 실패:', error);
+            alert('매출 데이터 삭제 중 오류가 발생했습니다.');
+            return;
+        }
+    }
+
+    alert('전체 매출 정보가 삭제되었습니다.\n페이지를 새로고침합니다.');
+    location.reload();
+}
+
+// 메뉴 정보 삭제
+async function resetMenuData() {
+    if (!confirm('메뉴 정보를 삭제하시겠습니까?\n등록된 모든 메뉴가 삭제됩니다.')) return;
+
+    // 로컬 삭제
+    const keysToRemove = [];
+    for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key && key.startsWith('menus')) {
+            keysToRemove.push(key);
+        }
+    }
+    keysToRemove.forEach(key => localStorage.removeItem(key));
+
+    // Firebase 삭제
+    if (isFirebaseConfigured()) {
+        try {
+            const snapshot = await db.collection('menus').get();
+            const deletes = snapshot.docs.map(doc => doc.ref.delete());
+            await Promise.all(deletes);
+        } catch (error) {
+            console.error('메뉴 삭제 실패:', error);
+            alert('메뉴 데이터 삭제 중 오류가 발생했습니다.');
+            return;
+        }
+    }
+
+    alert('메뉴 정보가 삭제되었습니다.\n페이지를 새로고침합니다.');
+    location.reload();
 }
