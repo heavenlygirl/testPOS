@@ -70,7 +70,7 @@ body {
     .header {
         /* 높이 자동 조절 (기존 고정 높이 해제) */
         height: 30px;
-        min-height: var(--header-height);
+        min-height: 30px;
 
         /* 위쪽: 상태바 안전 영역 + 추가 여백 (15px) */
         padding-top: calc(env(safe-area-inset-top) + 15px);
