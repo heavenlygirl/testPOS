@@ -264,8 +264,7 @@ body {
 
 /* 하단 네비게이션 */
 .bottom-nav {
-    height: calc(var(--nav-height) + 15px);
-    padding-bottom: 15px;
+    height: var(--nav-height);
     background: var(--white);
     border-top: 1px solid var(--light-gray);
     display: flex;
