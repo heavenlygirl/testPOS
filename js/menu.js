@@ -41,6 +41,10 @@ const MenuManager = {
 
         console.log('메뉴 추가 시도:', menu.name, '- Firebase 설정:', isFirebaseConfigured());
 
+        // 가장 마지막 순서 찾기
+        const maxOrder = this.menus.reduce((max, m) => Math.max(max, m.order || 0), -1);
+        menu.order = maxOrder + 1;
+
         if (isFirebaseConfigured()) {
             try {
                 const docRef = await db.collection('menus').add(menu);
@@ -56,7 +60,7 @@ const MenuManager = {
             console.log('로컬 저장 모드:', menu.id);
         }
 
-        this.menus.unshift(menu);
+        this.menus.push(menu);
         this.saveToLocal();
         console.log('메뉴 추가 완료. 총 메뉴 수:', this.menus.length);
         return menu;
