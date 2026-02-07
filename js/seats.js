@@ -171,16 +171,9 @@ function updateGridScale() {
 
     containers.forEach(container => {
         if (container) {
-            let width = baseWidth;
-
-            // 설정 화면은 모바일에서도 넓게 사용하여 스크롤 가능하게 함
-            if (container.id === 'config-seats-grid' && baseWidth < 600) {
-                width = 600;
-            }
-
             // 스타일 적용 (고정 크기)
-            container.style.width = `${width}px`;
-            container.style.height = `${width * 1.33}px`; // 3:4 비율
+            container.style.width = `${baseWidth}px`;
+            container.style.height = `${baseWidth * 1.33}px`; // 3:4 비율
             container.style.transform = 'none';
             container.style.transformOrigin = 'top left';
         }
@@ -255,11 +248,7 @@ function renderSeatConfigView() {
     }
 
     // 화면 비율에 따른 좌표 스케일링
-    // 설정 뷰는 모바일에서도 600px로 고정되므로, 모바일(baseWidth < 600)인 경우 2배 확대
-    let coordScale = baseWidth / 300;
-    if (baseWidth < 600) {
-        coordScale = 600 / 300; // 2배
-    }
+    const coordScale = baseWidth / 300;
 
     SeatManager.seats.forEach(seat => {
         const seatEl = document.createElement('div');
@@ -353,11 +342,7 @@ function handleDragEnd(e) {
     const seatId = dragState.seatId;
 
     // 위치 저장 - 화면 비율 고려하여 원본 좌표(300px 기준)로 변환
-    // 모바일 설정 뷰의 경우 600px 기준이므로 coordScale 재계산 필요
-    let coordScale = baseWidth / 300;
-    if (baseWidth < 600) {
-        coordScale = 600 / 300;
-    }
+    const coordScale = baseWidth / 300;
 
     const currentX = parseInt(seatEl.style.left) || 0;
     const currentY = parseInt(seatEl.style.top) || 0;
