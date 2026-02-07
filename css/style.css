@@ -28,8 +28,8 @@
     --shadow: 0 4px 15px rgba(26, 32, 26, 0.15);
     /* Adjusted shadow color */
     --radius: 20px;
-    --nav-height: 56px;
-    --header-height: 30px;
+    --nav-height: 30px;
+    --header-height: 60px;
 }
 
 html,
