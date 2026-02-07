@@ -76,6 +76,16 @@ body {
     flex-shrink: 0;
 }
 
+/* PWA 모드일 때 body와 app의 높이는 고정 (100dvh 대신) */
+@media (display-mode: standalone) {
+
+    html,
+    body,
+    #app {
+        height: 100vh;
+    }
+}
+
 /* PWA 모드일 때 헤더 스타일 (노치 대응 및 여백 분리) */
 @media (display-mode: standalone) {
     .header {
