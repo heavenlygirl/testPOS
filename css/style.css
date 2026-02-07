@@ -55,13 +55,22 @@ body {
 
 /* 헤더 */
 .header {
-    height: var(--header-height);
+    /* 높이 유동적 (아이폰 노치 등 안전영역 대응) */
+    height: auto;
+    min-height: var(--header-height);
     background: var(--secondary-color);
     color: var(--white);
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 0 20px;
+
+    /* 안전 영역 반영 */
+    padding-top: env(safe-area-inset-top);
+    padding-left: 20px;
+    padding-right: 20px;
+    padding-bottom: 5px;
+    /* 시각적 균형을 위해 하단 패딩 */
+
     flex-shrink: 0;
 }
 
