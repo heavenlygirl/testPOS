@@ -137,6 +137,13 @@ body {
     z-index: 1;
 }
 
+/* PWA 모드일 때 하단 여백 추가 (네비게이션에 가려짐 방지) */
+@media (display-mode: standalone) {
+    #main-content {
+        padding-bottom: calc(var(--nav-height) + 15px + env(safe-area-inset-bottom));
+    }
+}
+
 .view {
     display: none;
 }

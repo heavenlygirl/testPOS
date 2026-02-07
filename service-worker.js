@@ -1,5 +1,5 @@
 // Service Worker for POS PWA
-const CACHE_NAME = 'pos-cache-v1.1.29';
+const CACHE_NAME = 'pos-cache-v1.1.30';
 const urlsToCache = [
     '/',
     '/index.html',
