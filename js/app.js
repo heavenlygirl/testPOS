@@ -51,7 +51,7 @@ function switchView(viewId) {
         'seats-view': '좌석',
         'sales-view': '매출',
         'menu-view': '메뉴설정',
-        'seat-config-view': '좌석설정'
+        'seat-config-view': '설정'
     };
     document.getElementById('header-title').textContent = titles[viewId] || '좌석';
 
