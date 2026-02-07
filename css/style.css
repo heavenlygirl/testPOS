@@ -69,7 +69,7 @@ body {
 @media (display-mode: standalone) {
     .header {
         /* 높이 자동 조절 (기존 고정 높이 해제) */
-        height: auto;
+        height: 30;
         min-height: var(--header-height);
 
         /* 위쪽: 상태바 안전 영역 + 추가 여백 (15px) */
@@ -353,7 +353,7 @@ body {
 }
 
 .order-btn:not(:disabled):active {
-    background: var(--primary-color);
+    background: var(--primary-dark);
     color: var(--white);
 }
 
