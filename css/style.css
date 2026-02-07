@@ -430,6 +430,13 @@ body {
     z-index: 200;
 }
 
+/* PWA 모드일 때 FAB 버튼 위치 조정 (네비게이션 위로) */
+@media (display-mode: standalone) {
+    .fab-btn {
+        bottom: calc(var(--nav-height) + 20px + env(safe-area-inset-bottom));
+    }
+}
+
 .fab-btn:active {
     background: var(--primary-dark);
 }
